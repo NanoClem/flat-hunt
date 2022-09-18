@@ -1,10 +1,8 @@
-import re
 import json
 from typing import Callable
 
 import scrapy
-from scrapy.loader import ItemLoader
-
+from flat_hunt.item_loaders import FlatLoader
 from flat_hunt.items import FlatItem
 
 
@@ -24,7 +22,7 @@ class ImmobilierChSpider(scrapy.Spider):
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
     }
     cookies: dict = {
-        'ASP.NET_SessionId': 'pcerzkiru3jsgkusj1vglnea',
+        'ASP.NET_SessionId': 'gvatotjjxcasauox3ru40fem',
     }
 
     def make_request(
@@ -50,16 +48,15 @@ class ImmobilierChSpider(scrapy.Spider):
         flats_data = data['Results']
 
         for item in flats_data:
-            req = self.make_request(
+            yield self.make_request(
                 url=f'https://{self.allowed_domains[0]}/{item["u"]}',
                 headers=self.headers,
                 callback=self.parse_flats,
                 cb_kwargs={'flat_data': item},
             )
-            yield req
 
     def parse_flats(self, response, flat_data: dict):
-        loader = ItemLoader(item=FlatItem(), response=response)
+        loader = FlatLoader(item=FlatItem(), response=response)
 
         # Values from previous json response
         loader.add_value('source_id', flat_data.get('id', ""))
@@ -85,22 +82,3 @@ class ImmobilierChSpider(scrapy.Spider):
         # loader.add_css('availability')
 
         return loader.load_item()
-
-        # yield {
-        #     'source_id': str(flat_data.get('id')),
-        #     'title': flat_data.get('c', '').strip(),
-        #     'rent': int(match_rent.group(0).replace("'", '')) if match_rent else None,
-        #     'expenses': int(match_expenses.group(0).replace('+ ', ''))
-        #     if match_expenses
-        #     else None,
-        #     'url': f'https://{self.allowed_domains[0]}/{flat_data.get("u", "")}',
-        #     'lat': flat_data.get('lt'),
-        #     'lon': flat_data.get('ln'),
-        #     'address': flat_data.get('a', "").strip(),
-        #     'nb_rooms': flat_data.get('nr'),
-        #     'nb_bathrooms': 1 if flat_data.get('nb', 1) < 1 else flat_data.get('nb', 1),
-        #     'nb_bedrooms': flat_data.get('nsr'),
-        #     'surface': flat_data.get('s'),
-        #     'nb_pics': flat_data.get('pc'),
-        #     'pics': flat_data.get('m', list()),
-        # }
