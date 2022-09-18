@@ -21,6 +21,6 @@ class JsonLoadingPipeline:
 
     @utils.logged
     def process_item(self, item: FlatItem, spider: scrapy.Spider):
-        line = json.dumps(dict(item), ensure_ascii=False) + "\n"  # ensure utf-8 encoding
+        line = json.dumps(item.to_dict(), ensure_ascii=False) + "\n"  # ensure utf-8 encoding
         self.file.write(line)
         return item
