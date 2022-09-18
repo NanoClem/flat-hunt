@@ -23,11 +23,6 @@ class Replace:
         return value.replace(self.to_replace, self.replace_val)
 
 
-def filter_empty(value: str) -> str | None:
-    """Returns None if the string value is empty."""
-    return value if value else None
-
-
 def to_int(value: str | None) -> int | None:
     """Convert a string value to int if it is not empty or None. Otherwise returns None."""
     return int(value) if value else None
@@ -49,3 +44,5 @@ class FlatLoader(ItemLoader):
     ref_in = MapCompose(remove_tags)
     floor_in = MapCompose(remove_tags)
     availability_in = MapCompose(remove_tags)
+
+    pics_out = Identity()
